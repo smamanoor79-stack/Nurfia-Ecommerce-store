@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout – Nurfia</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="cart.css"/>
+  <link rel="stylesheet" href="checkout.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <a href="#">Order Tracking</a>
+      <a href="#">My Account</a>
+      <a href="#">About Us</a>
+    </div>
+    <div class="top-bar-center">
+      <p>Summer Sale For All Swim Suits And Free Express International Delivery</p>
+    </div>
+    <div class="top-bar-right">
+      <a href="#">Contact</a>
+      <a href="#">English ▾</a>
+      <a href="#">USD ▾</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header scrolled" id="header">
+    <div class="header-inner">
+      <div class="header-left">
+        <span class="menu-icon">☰</span>
+        <a href="index.html" class="logo">NURFIA</a>
+      </div>
+      <nav class="header-nav">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="#">Categories</a>
+        <a href="women.html">Women</a>
+        <a href="men.html">Men</a>
+        <a href="blog.html">Blog</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-icons">
+ 
+        <!-- Search -->
+  <div class="search-wrapper">
+    <i class="fa-solid fa-magnifying-glass search-trigger" id="searchTrigger"></i>
+
+    <div class="search-overlay" id="searchOverlay">
+      <div class="search-bar-container">
+        <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search popular products..."
+          autocomplete="off"
+        />
+        <i class="fa-solid fa-xmark search-close" id="searchClose"></i>
+      </div>
+      <div class="search-suggestions" id="searchSuggestions"></div>
+    </div>
+  </div>
+  
+  <a href="wishlist.html" class="wishlist-icon-link" style="color: inherit; text-decoration: none; position: relative; display: inline-block;">
+    <i class="fa-regular fa-heart"></i>
+    <span class="cart-count wishlist-count" id="wishlistCount" style="background: #000;">0</span>
+  </a>
+
+  <i class="fa-regular fa-user"></i>
+  <i class="fa-solid fa-arrow-right-arrow-left"></i>
+  
+  <span class="cart-icon" id="cartIconBtn">
+    <i class="fa-solid fa-bag-shopping"></i>
+    <span class="cart-count" id="cartCount">0</span>
+  </span>
+</div>
+    </div>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="cart-breadcrumb">
+    <a href="index.html">Home</a> / <span>Checkout</span>
+  </div>
+
+  <!-- Checkout Page -->
+  <div class="checkout-page">
+
+    <!-- Returning Customer Notice -->
+    <div class="checkout-notice">
+      <p>Returning customer? <a href="#">Click here to login</a></p>
+    </div>
+
+    <!-- Coupon Notice -->
+    <div class="checkout-coupon-bar" id="couponBar">
+      <p><i class="fa-solid fa-tag"></i> Have a coupon? <a href="#" id="toggleCoupon">Click here to enter your code</a></p>
+      <div class="coupon-form" id="couponForm" style="display:none;">
+        <p>If you have a coupon code, please apply it below.</p>
+        <div class="coupon-input-row">
+          <input type="text" id="checkoutCouponInput" placeholder="Coupon code" />
+          <button id="applyCouponBtn">APPLY COUPON</button>
+        </div>
+        <p class="coupon-msg" id="couponMsg"></p>
+      </div>
+    </div>
+
+    <!-- Shipping Bar -->
+    <div class="checkout-shipping-bar">
+      <div class="shipping-progress-wrap">
+        <div class="shipping-progress-bar">
+          <div class="shipping-progress-fill" id="checkoutShippingFill"></div>
+        </div>
+        <p class="shipping-bar-text" id="checkoutShippingText"></p>
+      </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="checkout-layout">
+
+      <!-- LEFT: Billing Form -->
+      <div class="checkout-left">
+        <h2 class="checkout-section-title">Billing details</h2>
+
+        <form id="checkoutForm" novalidate>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label>First name <span class="required">*</span></label>
+              <input type="text" id="firstName" placeholder="" />
+              <span class="field-error" id="firstNameErr"></span>
+            </div>
+            <div class="form-group">
+              <label>Last name <span class="required">*</span></label>
+              <input type="text" id="lastName" placeholder="" />
+              <span class="field-error" id="lastNameErr"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Country / Region <span class="required">*</span></label>
+            <select id="country">
+              <option value="US">United States (US)</option>
+              <option value="UK">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="AU">Australia</option>
+              <option value="PK">Pakistan</option>
+              <option value="IN">India</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+            </select>
+            <span class="field-error" id="countryErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Street address <span class="required">*</span></label>
+            <input type="text" id="streetAddress" placeholder="House number and street name" />
+            <input type="text" id="streetAddress2" placeholder="Apartment, suite, unit, etc. (optional)" style="margin-top:8px;" />
+            <span class="field-error" id="streetErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Town / City <span class="required">*</span></label>
+            <input type="text" id="city" />
+            <span class="field-error" id="cityErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label>State <span class="required">*</span></label>
+            <select id="state">
+              <option value="CA">California</option>
+              <option value="NY">New York</option>
+              <option value="TX">Texas</option>
+              <option value="FL">Florida</option>
+              <option value="WA">Washington</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="field-error" id="stateErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label>ZIP Code <span class="required">*</span></label>
+            <input type="text" id="zipCode" />
+            <span class="field-error" id="zipErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Phone (optional)</label>
+            <input type="tel" id="phone" />
+          </div>
+
+          <div class="form-group">
+            <label>Email address <span class="required">*</span></label>
+            <input type="email" id="email" />
+            <span class="field-error" id="emailErr"></span>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="createAccount" />
+            <label for="createAccount">Create an account?</label>
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="shipDifferent" />
+            <label for="shipDifferent">Ship to a different address?</label>
+          </div>
+
+          <!-- Different shipping address (hidden by default) -->
+          <div class="different-address" id="differentAddress" style="display:none;">
+            <h3 class="checkout-section-title" style="margin-top:24px;">Ship to a different address</h3>
+            <div class="form-row two-col">
+              <div class="form-group">
+                <label>First name</label>
+                <input type="text" id="shipFirstName" />
+              </div>
+              <div class="form-group">
+                <label>Last name</label>
+                <input type="text" id="shipLastName" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Street address</label>
+              <input type="text" id="shipStreet" placeholder="House number and street name" />
+              <input type="text" id="shipStreet2" placeholder="Apartment, suite, unit, etc. (optional)" style="margin-top:8px;" />
+            </div>
+            <div class="form-group">
+              <label>Town / City</label>
+              <input type="text" id="shipCity" />
+            </div>
+            <div class="form-group">
+              <label>ZIP Code</label>
+              <input type="text" id="shipZip" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Order notes (optional)</label>
+            <textarea id="orderNotes" rows="5" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div class="checkout-right">
+        <div class="order-summary">
+          <h2 class="checkout-section-title">Your order</h2>
+
+          <div class="order-summary-header">
+            <span>Product</span>
+            <span>Subtotal</span>
+          </div>
+
+          <div class="order-items" id="orderItems">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="order-summary-row">
+            <span>Subtotal</span>
+            <span id="orderSubtotal">$0.00</span>
+          </div>
+
+          <div class="order-summary-row">
+            <span>Shipment</span>
+            <div class="shipment-options">
+              <label class="shipment-option">
+                <input type="radio" name="checkoutShipping" value="15" checked />
+                Flat rate: <strong>$15.00</strong>
+              </label>
+              <label class="shipment-option">
+                <input type="radio" name="checkoutShipping" value="0" />
+                Local pickup
+              </label>
+            </div>
+          </div>
+
+          <div class="order-summary-row total-row">
+            <span>Total</span>
+            <span id="orderTotal">$0.00</span>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="payment-methods">
+
+            <div class="payment-option" id="payOption1">
+              <label class="payment-label">
+                <input type="radio" name="paymentMethod" value="bank" checked />
+                Direct Bank Transfer
+              </label>
+              <div class="payment-desc" id="bankDesc">
+                <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.</p>
+              </div>
+            </div>
+
+            <div class="payment-option" id="payOption2">
+              <label class="payment-label">
+                <input type="radio" name="paymentMethod" value="check" />
+                Check Payments
+              </label>
+            </div>
+
+            <div class="payment-option" id="payOption3">
+              <label class="payment-label">
+                <input type="radio" name="paymentMethod" value="cod" />
+                Cash On Delivery
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Privacy Notice -->
+          <p class="privacy-notice">Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="#">privacy policy</a>.</p>
+
+          <!-- Terms -->
+          <div class="form-check terms-check">
+            <input type="checkbox" id="agreeTerms" />
+            <label for="agreeTerms">I have read and agree to the website <a href="#">terms and conditions</a>.<span class="required">*</span></label>
+            <span class="field-error" id="termsErr"></span>
+          </div>
+
+          <!-- Place Order -->
+          <button class="place-order-btn" id="placeOrderBtn">PLACE ORDER</button>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="order-success-overlay" id="successOverlay" style="display:none;">
+    <div class="order-success-modal">
+      <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <h2>Order Placed Successfully!</h2>
+      <p>Thank you for your purchase. Your order has been received and is being processed.</p>
+      <div class="success-details" id="successDetails"></div>
+      <a href="index.html" class="continue-shopping-btn">CONTINUE SHOPPING</a>
+    </div>
+  </div>
+
+  <!-- Cart Drawer -->
+  <div class="cart-drawer-overlay" id="cartOverlay"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <h3>Your Cart</h3>
+      <button class="drawer-close" id="drawerClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-shipping-msg" id="drawerShippingMsg"></div>
+    <div class="drawer-items" id="drawerItems"></div>
+    <div class="drawer-footer" id="drawerFooter">
+      <div class="drawer-subtotal">
+        <span>Subtotal:</span>
+        <span id="drawerSubtotal">$0.00</span>
+      </div>
+      <a href="cart.html" class="drawer-view-cart">VIEW CART</a>
+      <a href="checkout.html" class="drawer-checkout">CHECKOUT</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">Careers for Nurfia</a>
+        <a href="#">About Nurfia</a>
+        <a href="#">Investor Relations</a>
+        <a href="#">Nurfia Devices</a>
+        <a href="#">Customer reviews</a>
+        <a href="#">Social Responsibility</a>
+        <a href="#">Store Locations</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Your Orders</a>
+        <a href="#">Returns & Replacements</a>
+        <a href="#">Shipping Rates & Policies</a>
+        <a href="#">Refund and Returns Policy</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms and Conditions</a>
+        <a href="#">Cookie Settings</a>
+        <a href="#">Help Center</a>
+      </div>
+      <div class="footer-col">
+        <h4>Help & Support</h4>
+        <a href="#">Sell on Nurfia</a>
+        <a href="#">Sell Your Services on Nurfia</a>
+        <a href="#">Sell on Nurfia Business</a>
+        <a href="#">Sell Your Apps on Nurfia</a>
+        <a href="#">Become an Affiliate</a>
+        <a href="#">Advertise Your Products</a>
+        <a href="#">Self-Publish with Us</a>
+        <a href="#">Become a Nurfia Vendor</a>
+      </div>
+      <div class="footer-col">
+        <h4>Subscribe to our emails</h4>
+        <p class="footer-sub-text">Subscribe to receive all our updates and offers, and get a 10% discount on your first purchase.</p>
+        <div class="footer-subscribe">
+          <input type="email" placeholder="Enter your email address" />
+          <button>SUBSCRIBE</button>
+        </div>
+        <p class="footer-terms">By subscribing you agree to our <a href="#">Terms & Conditions</a> and <a href="#">Privacy & Cookies Policy</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Copyright 2026 © Nurfia WordPress Theme. All right reserved. Powered by KLBTheme.</p>
+      <div class="footer-payments">
+        <span>Mastercard</span>
+        <span>VISA</span>
+        <span>PayPal</span>
+        <span>Skrill</span>
+        <span>Klarna</span>
+      </div>
+    </div>
+    <div class="footer-watermark">NURFIA</div>
+  </footer>
+
+  <!-- Cart Drawer -->
+<div class="cart-drawer-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-header">
+    <h3>Your Cart</h3>
+    <button class="drawer-close" id="drawerClose"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-shipping-msg" id="drawerShippingMsg"></div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-footer" id="drawerFooter">
+    <div class="drawer-subtotal">
+      <span>Subtotal:</span>
+      <span id="drawerSubtotal">$0.00</span>
+    </div>
+    <a href="cart.html" class="drawer-view-cart">VIEW CART</a>
+    <a href="#" class="drawer-checkout">CHECKOUT</a>
+  </div>
+</div>
+
+<!-- Wishlist Modal -->
+<div id="wishlistModal" class="wishlist-popup-modal">
+  <div class="wishlist-popup-content">
+    <p id="wishlistModalMessage"><strong id="modalProductName">Product</strong> has been added to Wishlist.</p>
+    <div class="wishlist-popup-actions">
+      <a href="wishlist.html" class="popup-btn view-wishlist-btn"><i class="fa-regular fa-heart"></i> VIEW WISHLIST</a>
+      <button id="closeWishlistModal" class="popup-btn close-modal-btn">&times; CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalOverlay" class="modal-blur-overlay"></div>
+
+  <!-- Auth Modal -->
+
+<div class="auth-modal-overlay" id="authModalOverlay"></div>
+
+<div class="auth-modal" id="authModal">
+  <button class="auth-modal-close" id="authModalClose">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <div class="auth-modal-inner">
+
+    <!-- Left Image -->
+    <div class="auth-modal-image">
+      <img src="/images/login.webp" alt="Nurfia" />
+    </div>
+
+    <!-- Right Form -->
+    <div class="auth-modal-form">
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Log in</button>
+        <button class="auth-tab" data-tab="register">Register</button>
+      </div>
+
+      <!-- Login -->
+      <div class="auth-panel active" id="loginPanel">
+        <h2 class="auth-title">Log in</h2>
+        <div class="auth-field">
+          <label>Username or email address *</label>
+          <input type="email" id="loginEmail" />
+        </div>
+        <div class="auth-field">
+          <label>Password *</label>
+          <input type="password" id="loginPassword" />
+        </div>
+        <div class="auth-remember">
+          <input type="checkbox" id="rememberMe" />
+          <label for="rememberMe">Remember me</label>
+        </div>
+        <button class="auth-submit-btn" id="loginBtn">LOG IN</button>
+        <a href="#" class="auth-forgot">Lost your password?</a>
+        <p class="auth-legal">By continuing, you accept the Website Regulations, Regulations for the sale of alcoholic beverages and the Privacy Policy, including the use of profiling.</p>
+        <p class="auth-switch">You don't have an account yet? <a href="#" class="auth-switch-link" data-target="register">Register Now</a></p>
+      </div>
+
+      <!-- Register -->
+      <div class="auth-panel" id="registerPanel">
+        <h2 class="auth-title">Create Account</h2>
+        <div class="auth-field">
+          <label>Full Name *</label>
+          <input type="text" id="registerName" />
+        </div>
+        <div class="auth-field">
+          <label>Email address *</label>
+          <input type="email" id="registerEmail" />
+        </div>
+        <div class="auth-field">
+          <label>Password *</label>
+          <input type="password" id="registerPassword" />
+        </div>
+        <button class="auth-submit-btn" id="registerBtn">REGISTER</button>
+        <p class="auth-legal">By continuing, you accept the Website Regulations and Privacy Policy.</p>
+        <p class="auth-switch">Already have an account? <a href="#" class="auth-switch-link" data-target="login">Log in</a></p>
+      </div>
+
+      <!-- Profile (when logged in) -->
+      <div class="auth-panel" id="profilePanel">
+        <h2 class="auth-title">My Account</h2>
+        <div class="auth-profile-info">
+          <div class="auth-avatar" id="profileAvatar">A</div>
+          <p class="auth-profile-name" id="profileName">Name</p>
+          <p class="auth-profile-email" id="profileEmail">email@example.com</p>
+        </div>
+        <button class="auth-submit-btn" id="logoutBtn">LOG OUT</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+  <script  type="module"src="main.js"></script>
+  <script type="module" src="cart.js"></script>
+  <script type="module" src="checkout.js"></script>
+</body>
+</html>

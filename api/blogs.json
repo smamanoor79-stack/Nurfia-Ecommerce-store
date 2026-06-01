@@ -1,0 +1,115 @@
+[
+  {
+    "id": 1,
+    "slug": "sustainable-fashion-eco-influencer",
+    "title": "Talking Sustainable Fashion with an Eco-Friendly Influencer",
+    "category": "Style Tips",
+    "date": "9 Jul 2025",
+    "author": "Sinan",
+    "image": "/images/blog1.webp",
+    "excerpt": "We sat down with eco-influencer Lena to talk about building a sustainable wardrobe without sacrificing style.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Sustainable fashion is no longer a niche — it's a movement. We spoke with eco-influencer Lena Morris about how she built a wardrobe that's both stylish and kind to the planet."
+      },
+      {
+        "type": "heading",
+        "text": "Start With What You Have"
+      },
+      {
+        "type": "paragraph",
+        "text": "Before buying anything new, go through your existing wardrobe. Rediscover pieces you forgot about, and style them in new ways. The most sustainable garment is the one already hanging in your closet."
+      },
+      {
+        "type": "heading",
+        "text": "Quality Over Quantity"
+      },
+      {
+        "type": "paragraph",
+        "text": "Invest in fewer, better pieces. A well-made linen shirt will outlast ten fast-fashion tops. Look for natural materials, strong stitching, and timeless silhouettes."
+      },
+      {
+        "type": "image",
+        "src": "/images/blog1.webp",
+        "alt": "Sustainable fashion lookbook"
+      },
+      {
+        "type": "paragraph",
+        "text": "Lena's golden rule: if you can't imagine wearing it three years from now, don't buy it. Fashion should be a slow, intentional practice — not an impulse."
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "slug": "oscar-red-carpet-outfits",
+    "title": "The Most Memorable Outfits from the Oscars Red Carpet",
+    "category": "Fashion News",
+    "date": "9 Jul 2025",
+    "author": "Sinan",
+    "image": "/images/blog2.webp",
+    "excerpt": "From sculptural gowns to bold color choices, this year's Oscars delivered unforgettable fashion moments.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Every year the Oscars red carpet becomes a stage for the world's most daring fashion. This year was no exception — designers pushed boundaries and stars delivered iconic looks."
+      },
+      {
+        "type": "heading",
+        "text": "The Standout Looks"
+      },
+      {
+        "type": "paragraph",
+        "text": "Sculptural silhouettes dominated the carpet, with several stars opting for dramatic architectural gowns that blurred the line between fashion and fine art."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "slug": "london-fashion-week-street-style",
+    "title": "The Best Street Style Looks from London Fashion Week",
+    "category": "Trends",
+    "date": "9 Jul 2025",
+    "author": "Sinan",
+    "image": "/images/blog3.webp",
+    "excerpt": "Outside the runway shows, the real magic happened on the streets of London.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "London Fashion Week is as much about what happens outside the shows as inside them. Street style photographers captured the most creative outfits from attendees across the city."
+      },
+      {
+        "type": "heading",
+        "text": "Layering Was Everything"
+      },
+      {
+        "type": "paragraph",
+        "text": "This season, layering took center stage. Oversized blazers over slip dresses, trench coats belted at the waist, and unexpected fabric combinations defined the look on the streets."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "slug": "fashion-award-ceremonies",
+    "title": "A Look at the Most Influential Fashion Award Ceremonies",
+    "category": "Style Tips",
+    "date": "9 Jul 2025",
+    "author": "Sinan",
+    "image": "/images/blog4.webp",
+    "excerpt": "Which award ceremonies have shaped fashion history? We break down the most influential nights in style.",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Award ceremonies are cultural moments that define eras in fashion. From the Met Gala to the BAFTAs, these events have launched trends, ended them, and created iconic images that last decades."
+      },
+      {
+        "type": "heading",
+        "text": "The Met Gala Effect"
+      },
+      {
+        "type": "paragraph",
+        "text": "No event shapes fashion conversation more than the Met Gala. Each year's theme sends designers and stylists into creative overdrive, producing some of the most talked-about looks in history."
+      }
+    ]
+  }
+]
