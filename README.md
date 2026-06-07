@@ -55,6 +55,7 @@ Nurfia/
 ├── women.js                 # Women's page logic
 ├── product.js               # Product detail logic
 ├── contact.js               # Contact form handling
+├── nurfia.test.js           # Vitest test suite
 ├── package.json
 └── package-lock.json
 ```
@@ -72,6 +73,7 @@ Nurfia/
 | Font Awesome 6.5 | Icons |
 | Google Fonts | Typography (Cormorant, Instrument Sans) |
 | Node.js / npm | Dev server (live reload) |
+| Vitest | Unit & integration testing |
 
 ---
 
@@ -113,6 +115,29 @@ npm run dev
 |---|---|
 | `npm run dev` | Start local development server with live reload |
 | `npm run build` | Build project for production (outputs to `dist/`) |
+| `npm test` | Run test suite (55 tests) |
+
+---
+
+## 🧪 Testing
+
+This project includes a comprehensive test suite built with **Vitest**.
+
+| | |
+|---|---|
+| Test Framework | Vitest + jsdom |
+| Total Tests | **55 passing** |
+
+**Coverage includes:**
+- ✅ Cart — add, remove, update quantity
+- ✅ Wishlist — localStorage persistence
+- ✅ Shipping — flat rate & free shipping threshold
+- ✅ Integration scenarios
+- ✅ Edge cases
+
+```bash
+npm test
+```
 
 ---
 
@@ -161,5 +186,3 @@ No part of this code may be copied, modified, distributed, or used without expli
 **Smama Noor** — [GitHub Profile](https://github.com/smamanoor79-stack)
 
 ---
-
->
