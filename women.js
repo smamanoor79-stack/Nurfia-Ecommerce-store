@@ -1,10 +1,6 @@
-import products from './api/products.json';
+import { getAllProducts } from './api.js';
 import { addToCart } from './cart.js';
 
-// ===== WOMEN ONLY =====
-const womenProducts = products.filter(p => p.category === 'Women');
-
-// Color name map
 const colorNames = {
   '#000000': 'Black', '#FFFFFF': 'White', '#808080': 'Gray',
   '#FF0000': 'Red', '#0000FF': 'Blue', '#90EE90': 'Green',
@@ -14,8 +10,8 @@ const colorNames = {
   '#8B0000': 'Red', '#FFFACD': 'Yellow', '#E8A090': 'Pink'
 };
 
-// State
-let filtered = [...womenProducts];
+let womenProducts = [];
+let filtered = [];
 let currentPage = 1;
 let itemsPerPage = 12;
 let activeCategory = 'all';
@@ -24,112 +20,122 @@ let activeSizes = [];
 let maxPrice = 150;
 let sortBy = 'default';
 
-// ===== BUILD FILTERS =====
+async function init() {
+  try {
+    const allProducts = await getAllProducts();
+    womenProducts = allProducts.filter(p => p.category === 'Women');
+    filtered = [...womenProducts];
+    buildFilters();
+    applyFilters();
+  } catch (err) {
+    console.error('Products load nahi hue:', err);
+  }
+}
 
-const subCategories = ['all', ...new Set(womenProducts.map(p => p.subCategory))];
-const categoryList = document.getElementById('categoryList');
-subCategories.forEach(cat => {
-  const li = document.createElement('li');
-  const count = cat === 'all'
-    ? womenProducts.length
-    : womenProducts.filter(p => p.subCategory === cat).length;
-  li.innerHTML = `<a href="#" data-cat="${cat}" class="${cat === 'all' ? 'active' : ''}">${cat === 'all' ? 'All' : cat} <span>${count}</span></a>`;
-  li.querySelector('a').addEventListener('click', (e) => {
-    e.preventDefault();
-    activeCategory = cat;
-    categoryList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-    e.target.classList.add('active');
+function buildFilters() {
+  const subCategories = ['all', ...new Set(womenProducts.map(p => p.subCategory))];
+  const categoryList = document.getElementById('categoryList');
+  subCategories.forEach(cat => {
+    const li = document.createElement('li');
+    const count = cat === 'all'
+      ? womenProducts.length
+      : womenProducts.filter(p => p.subCategory === cat).length;
+    li.innerHTML = `<a href="#" data-cat="${cat}" class="${cat === 'all' ? 'active' : ''}">${cat === 'all' ? 'All' : cat} <span>${count}</span></a>`;
+    li.querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+      activeCategory = cat;
+      categoryList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+      e.target.classList.add('active');
+      currentPage = 1;
+      applyFilters();
+    });
+    categoryList.appendChild(li);
+  });
+
+  const allColors = [...new Set(womenProducts.flatMap(p => p.colors || []))];
+  const colorList = document.getElementById('colorList');
+  allColors.forEach(color => {
+    const name = colorNames[color] || color;
+    const count = womenProducts.filter(p => p.colors && p.colors.includes(color)).length;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <label>
+        <input type="checkbox" value="${color}" />
+        <span class="color-dot" style="background:${color}; border: 1px solid #ddd"></span>
+        ${name} <span>(${count})</span>
+      </label>`;
+    li.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) activeColors.push(color);
+      else activeColors = activeColors.filter(c => c !== color);
+      currentPage = 1;
+      applyFilters();
+    });
+    colorList.appendChild(li);
+  });
+
+  const allSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const sizeList = document.getElementById('sizeList');
+  allSizes.forEach(size => {
+    const count = womenProducts.filter(p => p.sizes && p.sizes.includes(size)).length;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <label>
+        <input type="checkbox" value="${size}" />
+        ${size} <span>(${count})</span>
+      </label>`;
+    li.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) activeSizes.push(size);
+      else activeSizes = activeSizes.filter(s => s !== size);
+      currentPage = 1;
+      applyFilters();
+    });
+    sizeList.appendChild(li);
+  });
+
+  const priceRange = document.getElementById('priceRange');
+  const priceValue = document.getElementById('priceValue');
+  const womenMaxPrice = Math.ceil(Math.max(...womenProducts.map(p => p.salePrice || p.price)));
+  priceRange.max = womenMaxPrice;
+  priceRange.value = womenMaxPrice;
+  priceValue.textContent = womenMaxPrice;
+  maxPrice = womenMaxPrice;
+
+  priceRange.addEventListener('input', () => {
+    priceValue.textContent = priceRange.value;
+  });
+  document.getElementById('applyPrice').addEventListener('click', () => {
+    maxPrice = parseInt(priceRange.value);
     currentPage = 1;
     applyFilters();
   });
-  categoryList.appendChild(li);
-});
 
-const allColors = [...new Set(womenProducts.flatMap(p => p.colors))];
-const colorList = document.getElementById('colorList');
-allColors.forEach(color => {
-  const name = colorNames[color] || color;
-  const count = womenProducts.filter(p => p.colors.includes(color)).length;
-  const li = document.createElement('li');
-  li.innerHTML = `
-    <label>
-      <input type="checkbox" value="${color}" />
-      <span class="color-dot" style="background:${color}; border: 1px solid #ddd"></span>
-      ${name} <span>(${count})</span>
-    </label>`;
-  li.querySelector('input').addEventListener('change', (e) => {
-    if (e.target.checked) activeColors.push(color);
-    else activeColors = activeColors.filter(c => c !== color);
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    sortBy = e.target.value;
+    applyFilters();
+  });
+  document.getElementById('itemsSelect').addEventListener('change', (e) => {
+    itemsPerPage = parseInt(e.target.value);
     currentPage = 1;
     applyFilters();
   });
-  colorList.appendChild(li);
-});
 
-const allSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const sizeList = document.getElementById('sizeList');
-allSizes.forEach(size => {
-  const count = womenProducts.filter(p => p.sizes.includes(size)).length;
-  const li = document.createElement('li');
-  li.innerHTML = `
-    <label>
-      <input type="checkbox" value="${size}" />
-      ${size} <span>(${count})</span>
-    </label>`;
-  li.querySelector('input').addEventListener('change', (e) => {
-    if (e.target.checked) activeSizes.push(size);
-    else activeSizes = activeSizes.filter(s => s !== size);
-    currentPage = 1;
-    applyFilters();
+  document.getElementById('gridView').addEventListener('click', () => {
+    document.getElementById('shopGrid').classList.remove('list-view');
+    document.getElementById('gridView').classList.add('active');
+    document.getElementById('listView').classList.remove('active');
   });
-  sizeList.appendChild(li);
-});
+  document.getElementById('listView').addEventListener('click', () => {
+    document.getElementById('shopGrid').classList.add('list-view');
+    document.getElementById('listView').classList.add('active');
+    document.getElementById('gridView').classList.remove('active');
+  });
+}
 
-const priceRange = document.getElementById('priceRange');
-const priceValue = document.getElementById('priceValue');
-const womenMaxPrice = Math.ceil(Math.max(...womenProducts.map(p => p.salePrice || p.price)));
-priceRange.max = womenMaxPrice;
-priceRange.value = womenMaxPrice;
-priceValue.textContent = womenMaxPrice;
-maxPrice = womenMaxPrice;
-
-priceRange.addEventListener('input', () => {
-  priceValue.textContent = priceRange.value;
-});
-document.getElementById('applyPrice').addEventListener('click', () => {
-  maxPrice = parseInt(priceRange.value);
-  currentPage = 1;
-  applyFilters();
-});
-
-document.getElementById('sortSelect').addEventListener('change', (e) => {
-  sortBy = e.target.value;
-  applyFilters();
-});
-
-document.getElementById('itemsSelect').addEventListener('change', (e) => {
-  itemsPerPage = parseInt(e.target.value);
-  currentPage = 1;
-  applyFilters();
-});
-
-document.getElementById('gridView').addEventListener('click', () => {
-  document.getElementById('shopGrid').classList.remove('list-view');
-  document.getElementById('gridView').classList.add('active');
-  document.getElementById('listView').classList.remove('active');
-});
-document.getElementById('listView').addEventListener('click', () => {
-  document.getElementById('shopGrid').classList.add('list-view');
-  document.getElementById('listView').classList.add('active');
-  document.getElementById('gridView').classList.remove('active');
-});
-
-// ===== APPLY FILTERS =====
 function applyFilters() {
   filtered = womenProducts.filter(p => {
     const catMatch = activeCategory === 'all' || p.subCategory === activeCategory;
-    const colorMatch = activeColors.length === 0 || activeColors.some(c => p.colors.includes(c));
-    const sizeMatch = activeSizes.length === 0 || activeSizes.some(s => p.sizes.includes(s));
+    const colorMatch = activeColors.length === 0 || activeColors.some(c => p.colors && p.colors.includes(c));
+    const sizeMatch = activeSizes.length === 0 || activeSizes.some(s => p.sizes && p.sizes.includes(s));
     const priceMatch = (p.salePrice || p.price) <= maxPrice;
     return catMatch && colorMatch && sizeMatch && priceMatch;
   });
@@ -143,7 +149,6 @@ function applyFilters() {
   renderPagination();
 }
 
-// ===== RENDER PRODUCTS =====
 function renderProducts() {
   const grid = document.getElementById('shopGrid');
   const start = (currentPage - 1) * itemsPerPage;
@@ -158,14 +163,16 @@ function renderProducts() {
   paginated.forEach(p => {
     const card = document.createElement('div');
     card.className = 'shop-card';
-    card.style.cursor = 'pointer'; // Visual pointer update for clickable cards
-    
+    card.style.cursor = 'pointer';
+
     card.innerHTML = `
       <div class="shop-card-img">
         ${p.discount ? `<span class="shop-badge">${p.discount}%</span>` : ''}
-        ${p.video
-          ? `<video src="${p.video}" autoplay muted loop playsinline></video>`
-          : `<img src="${p.image}" alt="${p.name}" />`
+        ${p.image && p.image.endsWith('.mp4')
+          ? `<video src="${p.image}" autoplay muted loop playsinline></video>`
+          : p.video
+            ? `<video src="${p.video}" autoplay muted loop playsinline></video>`
+            : `<img src="${p.image}" alt="${p.name}" />`
         }
         <div class="shop-card-actions">
           <button class="shop-action-btn shop-wishlist-btn" title="Wishlist"><i class="fa-regular fa-heart"></i></button>
@@ -187,23 +194,18 @@ function renderProducts() {
       </div>
     `;
 
-    // 1. Full Card Redirect Execution
     card.addEventListener('click', () => {
-      window.location.href = `product.html?id=${p.id}`;
+      window.location.href = `product.html?id=${p._id}`;
     });
 
-    // 2. Add To Cart handling with click capture block
     card.querySelector('.shop-add-cart').addEventListener('click', (e) => {
-      e.stopPropagation(); 
-      addToCart(p.id);
+      e.stopPropagation();
+      addToCart(p._id);
     });
 
-    // 3. Independent Action buttons behavior block
     card.querySelectorAll('.shop-action-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        
-        // Wishlist element local state toggle logic
+        e.stopPropagation();
         if (btn.classList.contains('shop-wishlist-btn')) {
           const icon = btn.querySelector('i');
           icon.classList.toggle('fa-regular');
@@ -217,7 +219,6 @@ function renderProducts() {
   });
 }
 
-// ===== PAGINATION =====
 function renderPagination() {
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const pagination = document.getElementById('shopPagination');
@@ -247,5 +248,4 @@ function renderPagination() {
   });
 }
 
-// Init
-applyFilters();
+init();

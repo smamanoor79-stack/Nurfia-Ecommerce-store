@@ -7,12 +7,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest --environment jsdom"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vite": "^8.0.14"
+    "@vitest/ui": "^4.1.8",
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.8"
   }
 }

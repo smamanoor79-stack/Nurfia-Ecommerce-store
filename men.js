@@ -1,8 +1,5 @@
-import products from './api/products.json';
+import { getAllProducts } from './api.js';
 import { addToCart } from './cart.js';
-
-// ===== MEN ONLY =====
-const menProducts = products.filter(p => p.category === 'Men');
 
 // Color name map
 const colorNames = {
@@ -15,7 +12,8 @@ const colorNames = {
 };
 
 // State
-let filtered = [...menProducts];
+let menProducts = [];
+let filtered = [];
 let currentPage = 1;
 let itemsPerPage = 12;
 let activeCategory = 'all';
@@ -24,112 +22,125 @@ let activeSizes = [];
 let maxPrice = 150;
 let sortBy = 'default';
 
+// ===== INIT =====
+async function init() {
+  try {
+    const allProducts = await getAllProducts();
+    menProducts = allProducts.filter(p => p.category === 'Men');
+    filtered = [...menProducts];
+    buildFilters();
+    applyFilters();
+  } catch (err) {
+    console.error('Products load nahi hue:', err);
+  }
+}
+
 // ===== BUILD FILTERS =====
+function buildFilters() {
+  const subCategories = ['all', ...new Set(menProducts.map(p => p.subCategory))];
+  const categoryList = document.getElementById('categoryList');
+  subCategories.forEach(cat => {
+    const li = document.createElement('li');
+    const count = cat === 'all'
+      ? menProducts.length
+      : menProducts.filter(p => p.subCategory === cat).length;
+    li.innerHTML = `<a href="#" data-cat="${cat}" class="${cat === 'all' ? 'active' : ''}">${cat === 'all' ? 'All' : cat} <span>${count}</span></a>`;
+    li.querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+      activeCategory = cat;
+      categoryList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+      e.target.classList.add('active');
+      currentPage = 1;
+      applyFilters();
+    });
+    categoryList.appendChild(li);
+  });
 
-const subCategories = ['all', ...new Set(menProducts.map(p => p.subCategory))];
-const categoryList = document.getElementById('categoryList');
-subCategories.forEach(cat => {
-  const li = document.createElement('li');
-  const count = cat === 'all'
-    ? menProducts.length
-    : menProducts.filter(p => p.subCategory === cat).length;
-  li.innerHTML = `<a href="#" data-cat="${cat}" class="${cat === 'all' ? 'active' : ''}">${cat === 'all' ? 'All' : cat} <span>${count}</span></a>`;
-  li.querySelector('a').addEventListener('click', (e) => {
-    e.preventDefault();
-    activeCategory = cat;
-    categoryList.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-    e.target.classList.add('active');
+  const allColors = [...new Set(menProducts.flatMap(p => p.colors || []))];
+  const colorList = document.getElementById('colorList');
+  allColors.forEach(color => {
+    const name = colorNames[color] || color;
+    const count = menProducts.filter(p => p.colors && p.colors.includes(color)).length;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <label>
+        <input type="checkbox" value="${color}" />
+        <span class="color-dot" style="background:${color}; border: 1px solid #ddd"></span>
+        ${name} <span>(${count})</span>
+      </label>`;
+    li.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) activeColors.push(color);
+      else activeColors = activeColors.filter(c => c !== color);
+      currentPage = 1;
+      applyFilters();
+    });
+    colorList.appendChild(li);
+  });
+
+  const allSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const sizeList = document.getElementById('sizeList');
+  allSizes.forEach(size => {
+    const count = menProducts.filter(p => p.sizes && p.sizes.includes(size)).length;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <label>
+        <input type="checkbox" value="${size}" />
+        ${size} <span>(${count})</span>
+      </label>`;
+    li.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) activeSizes.push(size);
+      else activeSizes = activeSizes.filter(s => s !== size);
+      currentPage = 1;
+      applyFilters();
+    });
+    sizeList.appendChild(li);
+  });
+
+  const priceRange = document.getElementById('priceRange');
+  const priceValue = document.getElementById('priceValue');
+  const menMaxPrice = Math.ceil(Math.max(...menProducts.map(p => p.salePrice || p.price)));
+  priceRange.max = menMaxPrice;
+  priceRange.value = menMaxPrice;
+  priceValue.textContent = menMaxPrice;
+  maxPrice = menMaxPrice;
+
+  priceRange.addEventListener('input', () => {
+    priceValue.textContent = priceRange.value;
+  });
+  document.getElementById('applyPrice').addEventListener('click', () => {
+    maxPrice = parseInt(priceRange.value);
     currentPage = 1;
     applyFilters();
   });
-  categoryList.appendChild(li);
-});
 
-const allColors = [...new Set(menProducts.flatMap(p => p.colors))];
-const colorList = document.getElementById('colorList');
-allColors.forEach(color => {
-  const name = colorNames[color] || color;
-  const count = menProducts.filter(p => p.colors.includes(color)).length;
-  const li = document.createElement('li');
-  li.innerHTML = `
-    <label>
-      <input type="checkbox" value="${color}" />
-      <span class="color-dot" style="background:${color}; border: 1px solid #ddd"></span>
-      ${name} <span>(${count})</span>
-    </label>`;
-  li.querySelector('input').addEventListener('change', (e) => {
-    if (e.target.checked) activeColors.push(color);
-    else activeColors = activeColors.filter(c => c !== color);
+  document.getElementById('sortSelect').addEventListener('change', (e) => {
+    sortBy = e.target.value;
+    applyFilters();
+  });
+  document.getElementById('itemsSelect').addEventListener('change', (e) => {
+    itemsPerPage = parseInt(e.target.value);
     currentPage = 1;
     applyFilters();
   });
-  colorList.appendChild(li);
-});
 
-const allSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const sizeList = document.getElementById('sizeList');
-allSizes.forEach(size => {
-  const count = menProducts.filter(p => p.sizes.includes(size)).length;
-  const li = document.createElement('li');
-  li.innerHTML = `
-    <label>
-      <input type="checkbox" value="${size}" />
-      ${size} <span>(${count})</span>
-    </label>`;
-  li.querySelector('input').addEventListener('change', (e) => {
-    if (e.target.checked) activeSizes.push(size);
-    else activeSizes = activeSizes.filter(s => s !== size);
-    currentPage = 1;
-    applyFilters();
+  document.getElementById('gridView').addEventListener('click', () => {
+    document.getElementById('shopGrid').classList.remove('list-view');
+    document.getElementById('gridView').classList.add('active');
+    document.getElementById('listView').classList.remove('active');
   });
-  sizeList.appendChild(li);
-});
-
-const priceRange = document.getElementById('priceRange');
-const priceValue = document.getElementById('priceValue');
-const menMaxPrice = Math.ceil(Math.max(...menProducts.map(p => p.salePrice || p.price)));
-priceRange.max = menMaxPrice;
-priceRange.value = menMaxPrice;
-priceValue.textContent = menMaxPrice;
-maxPrice = menMaxPrice;
-
-priceRange.addEventListener('input', () => {
-  priceValue.textContent = priceRange.value;
-});
-document.getElementById('applyPrice').addEventListener('click', () => {
-  maxPrice = parseInt(priceRange.value);
-  currentPage = 1;
-  applyFilters();
-});
-
-document.getElementById('sortSelect').addEventListener('change', (e) => {
-  sortBy = e.target.value;
-  applyFilters();
-});
-
-document.getElementById('itemsSelect').addEventListener('change', (e) => {
-  itemsPerPage = parseInt(e.target.value);
-  currentPage = 1;
-  applyFilters();
-});
-
-document.getElementById('gridView').addEventListener('click', () => {
-  document.getElementById('shopGrid').classList.remove('list-view');
-  document.getElementById('gridView').classList.add('active');
-  document.getElementById('listView').classList.remove('active');
-});
-document.getElementById('listView').addEventListener('click', () => {
-  document.getElementById('shopGrid').classList.add('list-view');
-  document.getElementById('listView').classList.add('active');
-  document.getElementById('gridView').classList.remove('active');
-});
+  document.getElementById('listView').addEventListener('click', () => {
+    document.getElementById('shopGrid').classList.add('list-view');
+    document.getElementById('listView').classList.add('active');
+    document.getElementById('gridView').classList.remove('active');
+  });
+}
 
 // ===== APPLY FILTERS =====
 function applyFilters() {
   filtered = menProducts.filter(p => {
     const catMatch = activeCategory === 'all' || p.subCategory === activeCategory;
-    const colorMatch = activeColors.length === 0 || activeColors.some(c => p.colors.includes(c));
-    const sizeMatch = activeSizes.length === 0 || activeSizes.some(s => p.sizes.includes(s));
+    const colorMatch = activeColors.length === 0 || activeColors.some(c => p.colors && p.colors.includes(c));
+    const sizeMatch = activeSizes.length === 0 || activeSizes.some(s => p.sizes && p.sizes.includes(s));
     const priceMatch = (p.salePrice || p.price) <= maxPrice;
     return catMatch && colorMatch && sizeMatch && priceMatch;
   });
@@ -158,14 +169,16 @@ function renderProducts() {
   paginated.forEach(p => {
     const card = document.createElement('div');
     card.className = 'shop-card';
-    card.style.cursor = 'pointer'; // UX improvement for clickability
-    
+    card.style.cursor = 'pointer';
+
     card.innerHTML = `
       <div class="shop-card-img">
         ${p.discount ? `<span class="shop-badge">${p.discount}%</span>` : ''}
-        ${p.video
-          ? `<video src="${p.video}" autoplay muted loop playsinline></video>`
-          : `<img src="${p.image}" alt="${p.name}" />`
+        ${p.image && p.image.endsWith('.mp4')
+          ? `<video src="${p.image}" autoplay muted loop playsinline></video>`
+          : p.video
+            ? `<video src="${p.video}" autoplay muted loop playsinline></video>`
+            : `<img src="${p.image}" alt="${p.name}" />`
         }
         <div class="shop-card-actions">
           <button class="shop-action-btn shop-wishlist-btn" title="Wishlist"><i class="fa-regular fa-heart"></i></button>
@@ -187,23 +200,18 @@ function renderProducts() {
       </div>
     `;
 
-    // 1. Redirect on card click
     card.addEventListener('click', () => {
-      window.location.href = `product.html?id=${p.id}`;
+      window.location.href = `product.html?id=${p._id}`;
     });
 
-    // 2. Add to cart handling (intercepts card click)
     card.querySelector('.shop-add-cart').addEventListener('click', (e) => {
-      e.stopPropagation(); 
-      addToCart(p.id);
+      e.stopPropagation();
+      addToCart(p._id);
     });
 
-    // 3. Action buttons click isolation
     card.querySelectorAll('.shop-action-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        
-        // Wishlist click visual effect
+        e.stopPropagation();
         if (btn.classList.contains('shop-wishlist-btn')) {
           const icon = btn.querySelector('i');
           icon.classList.toggle('fa-regular');
@@ -247,5 +255,5 @@ function renderPagination() {
   });
 }
 
-// Init
-applyFilters();
+// ===== START =====
+init();

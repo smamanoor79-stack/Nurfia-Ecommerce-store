@@ -2071,7 +2071,7 @@ body {
 }
 
 
-/* ===== AUTH MODAL — add to style.css ===== */
+/* ===== AUTH MODAL  ===== */
 
 /* Blur background when modal open */
 body.modal-open .hero,
@@ -2082,10 +2082,7 @@ body.modal-open .marquee-section,
 body.modal-open .banner-section,
 body.modal-open .shop-page,
 body.modal-open .blog-page-wrapper,
-body.modal-open .detail-page-wrapper {
-  filter: blur(3px);
-  transition: filter 0.3s ease;
-}
+
 
 /* Overlay */
 .auth-modal-overlay {

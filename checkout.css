@@ -438,3 +438,15 @@
   transition: background 0.2s;
 }
 .continue-shopping-btn:hover { background: #333; }
+
+.bank-details-box {
+  background: #f7f7f7;
+  border: 1px solid #eee;
+  padding: 14px 16px;
+  margin-top: 10px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px;
+}
+.bank-details-box p {
+  margin: 4px 0;
+}

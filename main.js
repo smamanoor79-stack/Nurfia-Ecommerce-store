@@ -1,4 +1,6 @@
-import products from './api/products.json';
+import { loginUser, registerUser, logoutUser, getUser, isLoggedIn, getAllProducts, getBackendCart } from './api.js';
+import { syncCartToBackend } from './cart.js';
+import { fetchAndUpdateWishlistBadge, syncWishlistToBackend } from './wishlist.js';
 import blogs from './api/blogs.json';
 import { renderProducts } from './renderProducts';
 import { filterProducts } from './filterProducts';
@@ -9,18 +11,14 @@ const header = document.getElementById("header");
 if (header) {
   const hasHero = document.querySelector('.hero');
   if (!hasHero) header.classList.add("scrolled");
-
   window.addEventListener("scroll", () => {
-    if (window.scrollY > 50) {
-      header.classList.add("scrolled");
-    } else {
-      if (hasHero) header.classList.remove("scrolled");
-    }
+    if (window.scrollY > 50) header.classList.add("scrolled");
+    else if (hasHero) header.classList.remove("scrolled");
   });
 }
 
-// ===== SLIDER FUNCTION =====
-function initSlider(section, productsGrid, sliderDots, filterBtns) {
+// ===== SLIDER =====
+function initSlider(section, productsGrid, sliderDots, filterBtns, products) {
   const cardsPerSlide = 4;
   let currentSlide = 0;
 
@@ -31,15 +29,10 @@ function initSlider(section, productsGrid, sliderDots, filterBtns) {
     btn.addEventListener("click", () => {
       filterBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-
       const filtered = filterProducts(products, btn.dataset.filter);
       renderProducts(filtered, productsGrid);
       currentSlide = 0;
-
-      setTimeout(() => {
-        createDots();
-        moveSlider();
-      }, 100);
+      setTimeout(() => { createDots(); moveSlider(); }, 100);
     });
   });
 
@@ -47,15 +40,11 @@ function initSlider(section, productsGrid, sliderDots, filterBtns) {
     const totalCards = productsGrid.querySelectorAll(".product-card").length;
     const totalSlides = Math.ceil(totalCards / cardsPerSlide);
     sliderDots.innerHTML = "";
-
     for (let i = 0; i < totalSlides; i++) {
       const dot = document.createElement("div");
       dot.classList.add("dot");
       if (i === 0) dot.classList.add("active");
-      dot.addEventListener("click", () => {
-        currentSlide = i;
-        moveSlider();
-      });
+      dot.addEventListener("click", () => { currentSlide = i; moveSlider(); });
       sliderDots.appendChild(dot);
     }
   }
@@ -63,48 +52,48 @@ function initSlider(section, productsGrid, sliderDots, filterBtns) {
   function moveSlider() {
     const wrapperWidth = productsGrid.parentElement.offsetWidth;
     productsGrid.style.transform = `translateX(-${currentSlide * wrapperWidth}px)`;
-
     sliderDots.querySelectorAll(".dot").forEach((dot, i) => {
       dot.classList.toggle("active", i === currentSlide);
     });
   }
 
-  window.addEventListener("resize", () => {
-    currentSlide = 0;
-    moveSlider();
-  });
+  window.addEventListener("resize", () => { currentSlide = 0; moveSlider(); });
 }
 
-// ===== INIT ALL SECTIONS =====
-const allSections = document.querySelectorAll(".featured-section");
-allSections.forEach((section) => {
-  const productsGrid = section.querySelector(".products-grid");
-  const sliderDots   = section.querySelector(".slider-dots");
-  const filterBtns   = section.querySelectorAll(".filter-btn");
-
-  if (productsGrid && sliderDots) {
-    initSlider(section, productsGrid, sliderDots, filterBtns);
+// ===== INIT HOME SLIDERS =====
+async function initHomePage() {
+  try {
+    const products = await getAllProducts();
+    const allSections = document.querySelectorAll(".featured-section");
+    allSections.forEach((section) => {
+      const productsGrid = section.querySelector(".products-grid");
+      const sliderDots   = section.querySelector(".slider-dots");
+      const filterBtns   = section.querySelectorAll(".filter-btn");
+      if (productsGrid && sliderDots) {
+        initSlider(section, productsGrid, sliderDots, filterBtns, products);
+      }
+    });
+  } catch (err) {
+    console.error('Home products load nahi hue:', err);
   }
-});
+}
+initHomePage();
 
-// ===== TESTIMONIAL AUTO SLIDER =====
-const track = document.getElementById("testimonialTrack");
+// ===== TESTIMONIAL SLIDER =====
+const track   = document.getElementById("testimonialTrack");
 const prevBtn = document.getElementById("testimonialPrev");
 const nextBtn = document.getElementById("testimonialNext");
-const slides = document.querySelectorAll(".testimonial-slide");
+const slides  = document.querySelectorAll(".testimonial-slide");
 
 if (track && prevBtn && nextBtn && slides.length > 0) {
   let current = 0;
   const total = slides.length;
-
   const moveTestimonial = (index) => {
     current = (index + total) % total;
     track.style.transform = `translateX(-${current * 100}%)`;
   };
-
   nextBtn.addEventListener("click", () => moveTestimonial(current + 1));
   prevBtn.addEventListener("click", () => moveTestimonial(current - 1));
-
   setInterval(() => moveTestimonial(current + 1), 3000);
 }
 
@@ -125,13 +114,12 @@ if (blogGrid && blogs && blogs.length > 0) {
   });
 }
 
-// ===== SEARCH BAR =====
+// ===== SEARCH =====
 let allProducts = [];
 
 async function loadProducts() {
   try {
-    const res = await fetch('/api/products.json');
-    allProducts = await res.json();
+    allProducts = await getAllProducts();
   } catch (err) {
     console.error('Could not load products:', err);
   }
@@ -145,20 +133,14 @@ const suggestions   = document.getElementById('searchSuggestions');
 
 if (searchTrigger) {
   loadProducts();
-
   searchTrigger.addEventListener('click', () => {
     searchOverlay.classList.add('active');
     setTimeout(() => searchInput.focus(), 300);
   });
-
   searchClose.addEventListener('click', closeSearch);
-
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim().toLowerCase();
-    if (query.length < 1) {
-      suggestions.innerHTML = '';
-      return;
-    }
+    if (query.length < 1) { suggestions.innerHTML = ''; return; }
     const results = allProducts.filter(p =>
       p.name.toLowerCase().includes(query) ||
       p.category.toLowerCase().includes(query) ||
@@ -184,17 +166,15 @@ function renderSuggestions(results, query) {
     suggestions.innerHTML = `<p class="suggestion-no-results">No products found for "<strong>${escapeHtml(query)}</strong>"</p>`;
     return;
   }
-
   suggestions.innerHTML = results.map(product => {
     const highlightedName = highlightMatch(product.name, query);
     const hasSale = product.salePrice && product.salePrice < product.price;
-
     return `
-      <div class="suggestion-item" data-id="${product.id}" onclick="goToProduct(${product.id})">
+      <div class="suggestion-item" data-id="${product._id}" onclick="goToProduct('${product._id}')">
         <div class="suggestion-left">
           ${product.image && product.image.endsWith('.mp4')
-            ? `<video class="suggestion-thumb" src="${product.image}" muted preload="metadata" style="object-fit:cover;"></video>`
-            : `<img class="suggestion-thumb" src="${product.image}" alt="${escapeHtml(product.name)}" onerror="this.style.background='#eee'; this.src='';" />`
+            ? `<video class="suggestion-thumb" src="${product.image}" muted preload="metadata"></video>`
+            : `<img class="suggestion-thumb" src="${product.image}" alt="${escapeHtml(product.name)}" />`
           }
           <span class="suggestion-name">${highlightedName}</span>
         </div>
@@ -226,20 +206,17 @@ function escapeHtml(str) {
 }
 
 // ===== AUTH MODAL =====
-
 const authModal      = document.getElementById('authModal');
 const authOverlay    = document.getElementById('authModalOverlay');
 const authModalClose = document.getElementById('authModalClose');
 
-// Open when user icon clicked
 const userIconEl = document.querySelector('.fa-regular.fa-user');
 if (userIconEl) {
   const trigger = userIconEl.closest('a, button, span') || userIconEl;
   trigger.style.cursor = 'pointer';
   trigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    const loggedIn = JSON.parse(localStorage.getItem('nurfia_logged_in'));
-    openAuthModal(loggedIn ? 'profile' : 'login');
+    openAuthModal(isLoggedIn() ? 'profile' : 'login');
   });
 }
 
@@ -264,7 +241,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeAuthModal();
 });
 
-// ===== TABS =====
 document.querySelectorAll('.auth-tab').forEach(tab => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
@@ -284,95 +260,118 @@ function switchTab(tabName) {
   });
 }
 
-// ===== REGISTER =====
-document.getElementById('registerBtn')?.addEventListener('click', () => {
+document.getElementById('registerBtn')?.addEventListener('click', async () => {
   const name     = document.getElementById('registerName')?.value.trim();
   const email    = document.getElementById('registerEmail')?.value.trim();
-  const password = document.getElementById('registerPassword')?.value.trim();
-
+  const password = document.getElementById('registerPassword')?.value;
+  const btn      = document.getElementById('registerBtn');
   clearAuthMessages('registerPanel');
-
-  if (!name || !email || !password) {
-    showAuthError('registerPanel', 'Please fill in all fields.');
-    return;
+  if (!name || !email || !password) { showAuthError('registerPanel', 'Please fill in all fields.'); return; }
+  if (password.length < 6) { showAuthError('registerPanel', 'Password must be at least 6 characters.'); return; }
+  btn.disabled = true; btn.textContent = 'Registering...';
+  try {
+    const user = await registerUser(name, email, password);
+    showAuthSuccess('registerPanel', `Welcome, ${user.name}! Account created.`);
+    setTimeout(async () => {
+      clearAuthMessages('registerPanel');
+      updateUserIcon();
+      switchTab('profile');
+      // ✅ Register ke baad bhi sync karo
+      await syncCartToBackend();
+      await syncWishlistToBackend();
+      fetchAndUpdateWishlistBadge();
+    }, 1000);
+  } catch (err) {
+    showAuthError('registerPanel', err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'REGISTER';
   }
-  if (password.length < 6) {
-    showAuthError('registerPanel', 'Password must be at least 6 characters.');
-    return;
-  }
-  const existing = JSON.parse(localStorage.getItem('nurfia_user'));
-  if (existing && existing.email === email) {
-    showAuthError('registerPanel', 'This email is already registered.');
-    return;
-  }
-
-  localStorage.setItem('nurfia_user', JSON.stringify({ name, email, password }));
-  showAuthSuccess('registerPanel', 'Account created! Please log in.');
-  setTimeout(() => {
-    switchTab('login');
-    clearAuthMessages('registerPanel');
-  }, 1500);
 });
 
-// ===== LOGIN =====
-document.getElementById('loginBtn')?.addEventListener('click', () => {
+document.getElementById('loginBtn')?.addEventListener('click', async () => {
   const email    = document.getElementById('loginEmail')?.value.trim();
-  const password = document.getElementById('loginPassword')?.value.trim();
-  const remember = document.getElementById('rememberMe')?.checked;
-
+  const password = document.getElementById('loginPassword')?.value;
+  const btn      = document.getElementById('loginBtn');
   clearAuthMessages('loginPanel');
-
-  if (!email || !password) {
-    showAuthError('loginPanel', 'Please fill in all fields.');
-    return;
+  if (!email || !password) { showAuthError('loginPanel', 'Please fill in all fields.'); return; }
+  btn.disabled = true; btn.textContent = 'Logging in...';
+  try {
+    const user = await loginUser(email, password);
+    showAuthSuccess('loginPanel', `Welcome back, ${user.name}!`);
+    setTimeout(async () => {
+      clearAuthMessages('loginPanel');
+      updateUserIcon();
+      closeAuthModal();
+      // ✅ Login ke baad localStorage → backend sync
+      await syncCartToBackend();
+      await syncWishlistToBackend();
+      fetchAndUpdateWishlistBadge();
+      getBackendCart().then(data => {
+        const count = (data.cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+        document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = count);
+      }).catch(() => {});
+    }, 1000);
+  } catch (err) {
+    showAuthError('loginPanel', err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'LOG IN';
   }
-
-  const user = JSON.parse(localStorage.getItem('nurfia_user'));
-  if (!user) {
-    showAuthError('loginPanel', 'No account found. Please register first.');
-    return;
-  }
-  if (user.email !== email || user.password !== password) {
-    showAuthError('loginPanel', 'Invalid email or password.');
-    return;
-  }
-
-  localStorage.setItem('nurfia_logged_in', JSON.stringify({ name: user.name, email: user.email }));
-  if (remember) localStorage.setItem('nurfia_remember', 'true');
-
-  showAuthSuccess('loginPanel', `Welcome back, ${user.name}!`);
-  setTimeout(() => {
-    closeAuthModal();
-    updateUserIcon();
-  }, 1000);
 });
 
-// ===== LOGOUT =====
 document.getElementById('logoutBtn')?.addEventListener('click', () => {
-  localStorage.removeItem('nurfia_logged_in');
-  localStorage.removeItem('nurfia_remember');
-  closeAuthModal();
+  logoutUser();
   updateUserIcon();
+  switchTab('login');
+  closeAuthModal();
+  // ✅ Logout pe badges reset — localStorage counts dikhao
+  const localCart = JSON.parse(localStorage.getItem('nurfia_cart') || '[]');
+  const localWishlist = JSON.parse(localStorage.getItem('nurfia_wishlist') || '[]');
+  const cartCount = localCart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = cartCount);
+  document.querySelectorAll('.wishlist-count').forEach(b => b.textContent = localWishlist.length);
 });
 
-// ===== UPDATE USER ICON =====
 function updateUserIcon() {
-  const loggedIn = JSON.parse(localStorage.getItem('nurfia_logged_in'));
+  const user = getUser();
   const userIcon = document.querySelector('.fa-regular.fa-user');
   if (!userIcon) return;
-  if (loggedIn) {
-    userIcon.setAttribute('title', `Hi, ${loggedIn.name}`);
-    const profileName  = document.getElementById('profileName');
-    const profileEmail = document.getElementById('profileEmail');
-    if (profileName)  profileName.textContent  = loggedIn.name;
-    if (profileEmail) profileEmail.textContent = loggedIn.email;
+  if (user) {
+    userIcon.setAttribute('title', `Hi, ${user.name}`);
+    const profileName   = document.getElementById('profileName');
+    const profileEmail  = document.getElementById('profileEmail');
+    const profileAvatar = document.getElementById('profileAvatar');
+    if (profileName)   profileName.textContent   = user.name;
+    if (profileEmail)  profileEmail.textContent  = user.email;
+    if (profileAvatar) profileAvatar.textContent = user.name.charAt(0).toUpperCase();
   } else {
     userIcon.removeAttribute('title');
+  }
+
+  // Orders icon sirf logged in users ke liye dikhao
+  const ordersLink = document.getElementById('ordersIconLink');
+  if (ordersLink) {
+    ordersLink.style.display = user ? 'inline-block' : 'none';
   }
 }
 updateUserIcon();
 
-// ===== MESSAGES =====
+// ===== BADGES ON PAGE LOAD =====
+if (isLoggedIn()) {
+  // Logged in — backend se badges
+  fetchAndUpdateWishlistBadge();
+  getBackendCart().then(data => {
+    const count = (data.cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+    document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = count);
+  }).catch(() => {});
+} else {
+  // Guest — localStorage se badges
+  const localCart = JSON.parse(localStorage.getItem('nurfia_cart') || '[]');
+  const localWishlist = JSON.parse(localStorage.getItem('nurfia_wishlist') || '[]');
+  const cartCount = localCart.reduce((sum, item) => sum + (item.qty || 1), 0);
+  document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = cartCount);
+  document.querySelectorAll('.wishlist-count').forEach(b => b.textContent = localWishlist.length);
+}
+
 function showAuthError(panelId, message) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
@@ -393,8 +392,7 @@ function clearAuthMessages(panelId) {
   document.getElementById(panelId)?.querySelectorAll('.auth-message').forEach(el => el.remove());
 }
 
-// ===== SIDE MENU =====// 
-
+// ===== SIDE MENU =====
 const sideMenu        = document.getElementById('sideMenu');
 const sideMenuOverlay = document.getElementById('sideMenuOverlay');
 const sideMenuClose   = document.getElementById('sideMenuClose');
@@ -403,18 +401,16 @@ const menuIcon        = document.querySelector('.menu-icon');
 function openSideMenu() {
   sideMenu?.classList.add('active');
   sideMenuOverlay?.classList.add('active');
-  document.body.classList.add('drawer-open'); 
+  document.body.classList.add('drawer-open');
 }
-
 function closeSideMenu() {
   sideMenu?.classList.remove('active');
   sideMenuOverlay?.classList.remove('active');
-  document.body.classList.remove('drawer-open');  
+  document.body.classList.remove('drawer-open');
 }
 menuIcon?.addEventListener('click', openSideMenu);
 sideMenuClose?.addEventListener('click', closeSideMenu);
 sideMenuOverlay?.addEventListener('click', closeSideMenu);
-
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeSideMenu();
 });
