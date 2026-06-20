@@ -1,5 +1,5 @@
 // api.js
-export const BASE_URL = 'https://nurfiabackend-p15steus.b4a.run';
+export const BASE_URL = 'https://nurfiabackend-t5gdfm2v.b4a.run';
 
 // Token helpers
 export function getToken() {
