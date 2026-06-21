@@ -1,5 +1,5 @@
 // wishlist.js
-import { getAllProducts, getBackendWishlist, addToBackendWishlist, removeFromBackendWishlist, isLoggedIn } from './api.js';
+import { getAllProducts, getBackendWishlist, addToBackendWishlist, removeFromBackendWishlist, isLoggedIn, getImageUrl } from './api.js';
 import { addToCart } from './cart.js';
 
 let wishlistItems = []; // backend se aaya hua array of items
@@ -24,7 +24,7 @@ export async function fetchAndUpdateWishlistBadge() {
   }
   try {
     const data = await getBackendWishlist();
-   const items = data.wishlistItems || [];
+    const items = data.wishlistItems || [];
     updateGlobalWishlistBadges(items.length);
     return items;
   } catch (err) {
@@ -91,11 +91,11 @@ export function renderWishlistPage() {
     <tr style="border-bottom: 1px solid #eee;">
       <td class="product-thumbnail-cell" style="padding: 15px 0; display: flex; align-items: center; gap: 15px;">
         ${p.image && p.image.endsWith('.mp4')
-          ? `<video src="${p.image}" muted playsinline autoplay loop style="width: 65px; height: 75px; object-fit: cover;"></video>`
-          : p.video
-            ? `<video src="${p.video}" muted playsinline autoplay loop style="width: 65px; height: 75px; object-fit: cover;"></video>`
-            : `<img src="${p.image}" alt="${p.name}" style="width: 65px; height: 75px; object-fit: cover;" />`
-        }
+      ? `<video src="${getImageUrl(p.image)}" muted playsinline autoplay loop style="width: 65px; height: 75px; object-fit: cover;"></video>`
+      : p.video
+        ? `<video src="${getImageUrl(p.video)}" muted playsinline autoplay loop style="width: 65px; height: 75px; object-fit: cover;"></video>`
+        : `<img src="${getImageUrl(p.image)}" alt="${p.name}" style="width: 65px; height: 75px; object-fit: cover;" />`
+    }
         <span class="product-name-link" style="font-family: 'Instrument Sans', sans-serif; font-weight: 500; color: #000;">${p.name}</span>
       </td>
       <td class="product-price-cell" style="font-family: 'Instrument Sans', sans-serif;">
@@ -150,11 +150,11 @@ function bindActionTriggers() {
   });
 
   tableBody.querySelectorAll('.raw-atc-trigger').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    await addToCart(btn.dataset.id);
-    window.location.href = 'cart.html';
+    btn.addEventListener('click', async () => {
+      await addToCart(btn.dataset.id);
+      window.location.href = 'cart.html';
+    });
   });
-});
 }
 
 document.getElementById('clearWishlistBtn')?.addEventListener('click', async () => {

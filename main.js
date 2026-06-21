@@ -1,4 +1,4 @@
-import { loginUser, registerUser, logoutUser, getUser, isLoggedIn, getAllProducts, getBackendCart } from './api.js';
+import { loginUser, registerUser, logoutUser, getUser, isLoggedIn, getAllProducts, getBackendCart, getImageUrl } from './api.js';
 import { syncCartToBackend } from './cart.js';
 import { fetchAndUpdateWishlistBadge, syncWishlistToBackend } from './wishlist.js';
 import blogs from './api/blogs.json';
@@ -67,8 +67,8 @@ async function initHomePage() {
     const allSections = document.querySelectorAll(".featured-section");
     allSections.forEach((section) => {
       const productsGrid = section.querySelector(".products-grid");
-      const sliderDots   = section.querySelector(".slider-dots");
-      const filterBtns   = section.querySelectorAll(".filter-btn");
+      const sliderDots = section.querySelector(".slider-dots");
+      const filterBtns = section.querySelectorAll(".filter-btn");
       if (productsGrid && sliderDots) {
         initSlider(section, productsGrid, sliderDots, filterBtns, products);
       }
@@ -80,10 +80,10 @@ async function initHomePage() {
 initHomePage();
 
 // ===== TESTIMONIAL SLIDER =====
-const track   = document.getElementById("testimonialTrack");
+const track = document.getElementById("testimonialTrack");
 const prevBtn = document.getElementById("testimonialPrev");
 const nextBtn = document.getElementById("testimonialNext");
-const slides  = document.querySelectorAll(".testimonial-slide");
+const slides = document.querySelectorAll(".testimonial-slide");
 
 if (track && prevBtn && nextBtn && slides.length > 0) {
   let current = 0;
@@ -127,9 +127,9 @@ async function loadProducts() {
 
 const searchTrigger = document.getElementById('searchTrigger');
 const searchOverlay = document.getElementById('searchOverlay');
-const searchInput   = document.getElementById('searchInput');
-const searchClose   = document.getElementById('searchClose');
-const suggestions   = document.getElementById('searchSuggestions');
+const searchInput = document.getElementById('searchInput');
+const searchClose = document.getElementById('searchClose');
+const suggestions = document.getElementById('searchSuggestions');
 
 if (searchTrigger) {
   loadProducts();
@@ -173,24 +173,24 @@ function renderSuggestions(results, query) {
       <div class="suggestion-item" data-id="${product._id}" onclick="goToProduct('${product._id}')">
         <div class="suggestion-left">
           ${product.image && product.image.endsWith('.mp4')
-            ? `<video class="suggestion-thumb" src="${product.image}" muted preload="metadata"></video>`
-            : `<img class="suggestion-thumb" src="${product.image}" alt="${escapeHtml(product.name)}" />`
-          }
+        ? `<video class="suggestion-thumb" src="${getImageUrl(product.image)}" muted preload="metadata"></video>`
+        : `<img class="suggestion-thumb" src="${getImageUrl(product.image)}" alt="${escapeHtml(product.name)}" />`
+      }
           <span class="suggestion-name">${highlightedName}</span>
         </div>
         <div class="suggestion-prices">
           ${hasSale
-            ? `<span class="suggestion-original">$${product.price.toFixed(2)}</span>
+        ? `<span class="suggestion-original">$${product.price.toFixed(2)}</span>
                <span class="suggestion-sale">$${product.salePrice.toFixed(2)}</span>`
-            : `<span class="suggestion-sale">$${product.price.toFixed(2)}</span>`
-          }
+        : `<span class="suggestion-sale">$${product.price.toFixed(2)}</span>`
+      }
         </div>
       </div>
     `;
   }).join('');
 }
 
-window.goToProduct = function(id) {
+window.goToProduct = function (id) {
   closeSearch();
   window.location.href = `product.html?id=${id}`;
 };
@@ -202,12 +202,12 @@ function highlightMatch(text, query) {
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 // ===== AUTH MODAL =====
-const authModal      = document.getElementById('authModal');
-const authOverlay    = document.getElementById('authModalOverlay');
+const authModal = document.getElementById('authModal');
+const authOverlay = document.getElementById('authModalOverlay');
 const authModalClose = document.getElementById('authModalClose');
 
 const userIconEl = document.querySelector('.fa-regular.fa-user');
@@ -261,10 +261,10 @@ function switchTab(tabName) {
 }
 
 document.getElementById('registerBtn')?.addEventListener('click', async () => {
-  const name     = document.getElementById('registerName')?.value.trim();
-  const email    = document.getElementById('registerEmail')?.value.trim();
+  const name = document.getElementById('registerName')?.value.trim();
+  const email = document.getElementById('registerEmail')?.value.trim();
   const password = document.getElementById('registerPassword')?.value;
-  const btn      = document.getElementById('registerBtn');
+  const btn = document.getElementById('registerBtn');
   clearAuthMessages('registerPanel');
   if (!name || !email || !password) { showAuthError('registerPanel', 'Please fill in all fields.'); return; }
   if (password.length < 6) { showAuthError('registerPanel', 'Password must be at least 6 characters.'); return; }
@@ -289,9 +289,9 @@ document.getElementById('registerBtn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('loginBtn')?.addEventListener('click', async () => {
-  const email    = document.getElementById('loginEmail')?.value.trim();
+  const email = document.getElementById('loginEmail')?.value.trim();
   const password = document.getElementById('loginPassword')?.value;
-  const btn      = document.getElementById('loginBtn');
+  const btn = document.getElementById('loginBtn');
   clearAuthMessages('loginPanel');
   if (!email || !password) { showAuthError('loginPanel', 'Please fill in all fields.'); return; }
   btn.disabled = true; btn.textContent = 'Logging in...';
@@ -309,7 +309,7 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
       getBackendCart().then(data => {
         const count = (data.cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
         document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = count);
-      }).catch(() => {});
+      }).catch(() => { });
     }, 1000);
   } catch (err) {
     showAuthError('loginPanel', err.message);
@@ -337,11 +337,11 @@ function updateUserIcon() {
   if (!userIcon) return;
   if (user) {
     userIcon.setAttribute('title', `Hi, ${user.name}`);
-    const profileName   = document.getElementById('profileName');
-    const profileEmail  = document.getElementById('profileEmail');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
     const profileAvatar = document.getElementById('profileAvatar');
-    if (profileName)   profileName.textContent   = user.name;
-    if (profileEmail)  profileEmail.textContent  = user.email;
+    if (profileName) profileName.textContent = user.name;
+    if (profileEmail) profileEmail.textContent = user.email;
     if (profileAvatar) profileAvatar.textContent = user.name.charAt(0).toUpperCase();
   } else {
     userIcon.removeAttribute('title');
@@ -362,7 +362,7 @@ if (isLoggedIn()) {
   getBackendCart().then(data => {
     const count = (data.cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
     document.querySelectorAll('.cart-count:not(.wishlist-count)').forEach(b => b.textContent = count);
-  }).catch(() => {});
+  }).catch(() => { });
 } else {
   // Guest — localStorage se badges
   const localCart = JSON.parse(localStorage.getItem('nurfia_cart') || '[]');
@@ -393,10 +393,10 @@ function clearAuthMessages(panelId) {
 }
 
 // ===== SIDE MENU =====
-const sideMenu        = document.getElementById('sideMenu');
+const sideMenu = document.getElementById('sideMenu');
 const sideMenuOverlay = document.getElementById('sideMenuOverlay');
-const sideMenuClose   = document.getElementById('sideMenuClose');
-const menuIcon        = document.querySelector('.menu-icon');
+const sideMenuClose = document.getElementById('sideMenuClose');
+const menuIcon = document.querySelector('.menu-icon');
 
 function openSideMenu() {
   sideMenu?.classList.add('active');

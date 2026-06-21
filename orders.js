@@ -1,4 +1,4 @@
-import { isLoggedIn, getMyOrders } from './api.js';
+import { isLoggedIn, getMyOrders, getImageUrl } from './api.js';
 
 const ordersLoading = document.getElementById('ordersLoading');
 const ordersLoginRequired = document.getElementById('ordersLoginRequired');
@@ -50,7 +50,7 @@ function renderOrders(orders) {
   ordersList.innerHTML = sorted.map(order => {
     const itemsPreview = order.orderItems.map(item => `
       <div class="order-item-row">
-        <img src="${item.image}" alt="${item.name}" class="order-item-thumb" />
+        <img src="${getImageUrl(item.image)}" alt="${item.name}" class="order-item-thumb" />
         <div class="order-item-details">
           <p class="order-item-name">${item.name}</p>
           <p class="order-item-qty">Qty: ${item.quantity} &nbsp;•&nbsp; $${item.price.toFixed(2)}</p>

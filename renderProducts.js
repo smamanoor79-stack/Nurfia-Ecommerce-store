@@ -1,5 +1,5 @@
+import { addToBackendWishlist, removeFromBackendWishlist, getToken, isLoggedIn, getImageUrl } from './api.js';
 import { addToCart } from './cart.js';
-import { addToBackendWishlist, removeFromBackendWishlist, getToken, isLoggedIn } from './api.js';
 
 // ===== WISHLIST HELPERS =====
 function getWishlist() {
@@ -55,9 +55,9 @@ function toggleWishlist(id, btn, product = {}) {
 }
 
 function showWishlistModal(productId) {
-  const modal   = document.getElementById('wishlistModal');
+  const modal = document.getElementById('wishlistModal');
   const overlay = document.getElementById('modalOverlay');
-  const nameEl  = document.getElementById('modalProductName');
+  const nameEl = document.getElementById('modalProductName');
   if (!modal) return;
   if (nameEl) nameEl.textContent = `Product added to wishlist!`;
   modal.classList.add('active');
@@ -81,7 +81,7 @@ export const renderProducts = (products, container) => {
   products.forEach((product) => {
     const id = product._id;
     const stars = "★".repeat(Math.round(product.rating)) +
-                  "☆".repeat(5 - Math.round(product.rating));
+      "☆".repeat(5 - Math.round(product.rating));
     const inWishlist = isInWishlist(id);
 
     const card = document.createElement('div');
@@ -91,15 +91,15 @@ export const renderProducts = (products, container) => {
       <div class="product-card-image">
         ${product.discount > 0 ? `<span class="product-badge">${product.discount}%</span>` : ""}
         ${product.image && product.image.endsWith('.mp4')
+        ? `<video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+       <source src="${getImageUrl(product.image)}" type="video/mp4" />
+     </video>`
+        : product.video
           ? `<video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
-               <source src="${product.image}" type="video/mp4" />
-             </video>`
-          : product.video
-            ? `<video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
-                 <source src="${product.video}" type="video/mp4" />
-               </video>`
-            : `<img src="${product.image}" alt="${product.name}" />`
-        }
+         <source src="${getImageUrl(product.video)}" type="video/mp4" />
+       </video>`
+          : `<img src="${getImageUrl(product.image)}" alt="${product.name}" />`
+      }
         <div class="card-hover-actions">
           <button class="hover-btn wishlist-btn" style="${inWishlist ? 'background:#000;color:#fff;' : ''}">
             <i class="${inWishlist ? 'fa-solid' : 'fa-regular'} fa-heart"></i>

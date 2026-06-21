@@ -1,5 +1,4 @@
-import { getAllProducts, getToken, getUser, isLoggedIn, getBackendCart, clearBackendCart, addToBackendWishlist, removeFromBackendWishlist, getBackendWishlist } from './api.js';
-
+import { getAllProducts, getToken, getUser, isLoggedIn, getBackendCart, clearBackendCart, addToBackendWishlist, removeFromBackendWishlist, getBackendWishlist, BASE_URL } from './api.js';
 const FREE_SHIPPING_THRESHOLD = 500;
 let discountPercent = 0;
 let products = [];
@@ -293,7 +292,7 @@ document.getElementById('placeOrderBtn')?.addEventListener('click', async () => 
     };
 
     // ===== API CALL =====
-    const res = await fetch('http://localhost:5000/api/orders', {
+    const res = await fetch(`${BASE_URL}/api/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

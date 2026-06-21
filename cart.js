@@ -1,10 +1,10 @@
-import { getAllProducts, addToBackendCart, removeFromBackendCart, clearBackendCart, getBackendCart, getToken, isLoggedIn } from './api.js';
+import { getAllProducts, addToBackendCart, removeFromBackendCart, clearBackendCart, getBackendCart, getToken, isLoggedIn, getImageUrl } from './api.js';
 
 const FREE_SHIPPING_THRESHOLD = 500;
 const FLAT_RATE = 15;
 
 let products = [];
-let cartItems = []; // active cart — localStorage ya backend
+let cartItems = [];
 
 async function loadProducts() {
   if (products.length === 0) products = await getAllProducts();
@@ -19,7 +19,7 @@ function saveLocalCart(cart) {
   localStorage.setItem('nurfia_cart', JSON.stringify(cart));
 }
 
-// ===== LOAD CART — localStorage ya backend =====
+// ===== LOAD CART =====
 async function loadCart() {
   if (isLoggedIn()) {
     try {
@@ -31,7 +31,7 @@ async function loadCart() {
         image: item.image,
         price: item.price
       }));
-      saveLocalCart(cartItems); // sync localStorage
+      saveLocalCart(cartItems);
     } catch {
       cartItems = getLocalCart();
     }
@@ -44,6 +44,7 @@ async function loadCart() {
 export async function syncCartToBackend() {
   const localCart = getLocalCart();
   if (!isLoggedIn() || localCart.length === 0) return;
+
   await loadProducts();
   try {
     for (const item of localCart) {
@@ -57,7 +58,9 @@ export async function syncCartToBackend() {
         item.qty
       );
     }
-    // Backend se fresh load karo
+
+    saveLocalCart([]);
+
     const data = await getBackendCart();
     cartItems = (data.cartItems || []).map(item => ({
       id: item.product?._id || item.product,
@@ -80,21 +83,22 @@ export async function addToCart(productId, quantity = 1) {
   const product = products.find(p => p._id === productId);
   if (!product) return;
 
-  // LocalStorage update
   let local = getLocalCart();
   const existing = local.find(item => item.id === productId);
-  if (existing) existing.qty += quantity;
-  else local.push({
-    id: productId,
-    qty: quantity,
-    name: product.name,
-    image: product.image,
-    price: product.salePrice || product.price
-  });
+  if (existing) {
+    existing.qty += quantity;
+  } else {
+    local.push({
+      id: productId,
+      qty: quantity,
+      name: product.name,
+      image: product.image,
+      price: product.salePrice || product.price
+    });
+  }
   saveLocalCart(local);
   cartItems = local;
 
-  // Backend sync if logged in
   if (isLoggedIn()) {
     try {
       await addToBackendCart(
@@ -104,6 +108,16 @@ export async function addToCart(productId, quantity = 1) {
         product.salePrice || product.price,
         quantity
       );
+
+      const data = await getBackendCart();
+      cartItems = (data.cartItems || []).map(item => ({
+        id: item.product?._id || item.product,
+        qty: item.quantity,
+        name: item.name,
+        image: item.image,
+        price: item.price
+      }));
+      saveLocalCart(cartItems);
     } catch (err) {
       console.error('Backend cart sync error:', err);
     }
@@ -249,7 +263,7 @@ function renderCartPage() {
     const name = item.name || p?.name || '';
     const price = item.price || 0;
     const qty = item.qty || 1;
-    const image = item.image || p?.image || '';
+    const image = getImageUrl(item.image || p?.image || '');
     const subtotal = price * qty;
 
     const imgTag = image.endsWith('.mp4')
@@ -357,7 +371,7 @@ function renderDrawer() {
     const name = item.name || '';
     const price = item.price || 0;
     const qty = item.qty || 1;
-    const image = item.image || '';
+    const image = getImageUrl(item.image || '');
 
     const imgTag = image.endsWith('.mp4')
       ? `<video src="${image}" autoplay muted loop playsinline class="drawer-item-img"></video>`

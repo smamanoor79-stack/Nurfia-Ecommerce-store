@@ -1,4 +1,4 @@
-import { getAllProducts, getSingleProduct } from './api.js';
+import { getAllProducts, getSingleProduct, getImageUrl } from './api.js';
 import { addToBackendWishlist, removeFromBackendWishlist, getBackendWishlist, isLoggedIn } from './api.js';
 import { addToCart } from './cart.js';
 
@@ -41,7 +41,7 @@ async function init() {
   }
 }
 
-function initProductPage(p) {
+async function initProductPage(p) {
   // ===== BREADCRUMB =====
   document.getElementById('breadcrumbName').textContent = p.name;
   document.title = `${p.name} – Nurfia`;
@@ -56,13 +56,14 @@ function initProductPage(p) {
   }
 
   function setMainMedia(src) {
+    const fullSrc = getImageUrl(src);
     if (isVideo(src)) {
-      mainEl.innerHTML = `<video src="${src}" autoplay muted loop playsinline></video>`;
+      mainEl.innerHTML = `<video src="${fullSrc}" autoplay muted loop playsinline></video>`;
     } else {
       mainEl.innerHTML = `
-        ${p.discount ? `<span class="gallery-badge">${p.discount}%</span>` : ''}
-        <img src="${src}" alt="${p.name}" />
-      `;
+      ${p.discount ? `<span class="gallery-badge">${p.discount}%</span>` : ''}
+      <img src="${fullSrc}" alt="${p.name}" />
+    `;
     }
   }
 
@@ -72,14 +73,14 @@ function initProductPage(p) {
     let thumb;
     if (isVideo(src)) {
       thumb = document.createElement('video');
-      thumb.src = src;
+      thumb.src = getImageUrl(src);
       thumb.muted = true;
       thumb.loop = true;
       thumb.autoplay = true;
       thumb.setAttribute('playsinline', '');
     } else {
       thumb = document.createElement('img');
-      thumb.src = src;
+      getImageUrl(src);
       thumb.alt = p.name;
     }
     thumb.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
@@ -192,7 +193,7 @@ function initProductPage(p) {
           const id = item.product?._id || item.product;
           return id === p._id;
         });
-      } catch {}
+      } catch { }
     }
 
     // Initial state set karo
@@ -273,8 +274,8 @@ function renderRelatedGrid(containerId, items) {
   items.forEach(p => {
     const isVid = p.image && (p.image.endsWith('.mp4') || p.image.endsWith('.webm'));
     const mediaTag = isVid
-      ? `<video src="${p.image}" autoplay muted loop playsinline></video>`
-      : `<img src="${p.image}" alt="${p.name}" />`;
+      ? `<video src="${getImageUrl(p.image)}" autoplay muted loop playsinline></video>`
+      : `<img src="${getImageUrl(p.image)}" alt="${p.name}" />`;
 
     const card = document.createElement('a');
     card.href = `product.html?id=${p._id}`;
