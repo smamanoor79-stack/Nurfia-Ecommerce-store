@@ -1,12 +1,13 @@
 /* ===== CHECKOUT PAGE ===== */
-
+.checkout-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
 .checkout-page .site-footer {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: auto;
 }
 
 /* Breadcrumb reuse from cart */
