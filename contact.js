@@ -1,10 +1,18 @@
+import { BASE_URL } from './api.js';
+
 // ===== CONTACT FORM =====
-document.getElementById('sendBtn').addEventListener('click', () => {
-  const name    = document.getElementById('contactName').value.trim();
-  const email   = document.getElementById('contactEmail').value.trim();
-  const subject = document.getElementById('contactSubject').value.trim();
-  const message = document.getElementById('contactMessage').value.trim();
-  const success = document.getElementById('formSuccess');
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const nameInput    = document.getElementById('contactName');
+  const emailInput   = document.getElementById('contactEmail');
+  const subjectInput = document.getElementById('contactSubject');
+  const messageInput = document.getElementById('contactMessage');
+  const success      = document.getElementById('formSuccess');
+  const sendBtn       = document.getElementById('sendBtn');
+
+  const name    = nameInput.value.trim();
+  const email   = emailInput.value.trim();
+  const subject = subjectInput.value.trim();
+  const message = messageInput.value.trim();
 
   if (!name || !email || !subject) {
     alert('Please fill in all required fields.');
@@ -18,15 +26,40 @@ document.getElementById('sendBtn').addEventListener('click', () => {
     return;
   }
 
-  // Show success message
-  success.classList.add('show');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'SENDING...';
 
-  // Reset form
-  document.getElementById('contactName').value    = '';
-  document.getElementById('contactEmail').value   = '';
-  document.getElementById('contactSubject').value = '';
-  document.getElementById('contactMessage').value = '';
+  try {
+    // ✅ Backend ko message bhejo
+    const res = await fetch(`${BASE_URL}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, subject, message }),
+    });
 
-  // Hide after 4 seconds
-  setTimeout(() => success.classList.remove('show'), 4000);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to send message.');
+    }
+
+    // Show success message
+    success.classList.add('show');
+
+    // Reset form
+    nameInput.value    = '';
+    emailInput.value   = '';
+    subjectInput.value = '';
+    messageInput.value = '';
+
+    // Hide after 4 seconds
+    setTimeout(() => success.classList.remove('show'), 4000);
+
+  } catch (err) {
+    console.error('Contact form error:', err);
+    alert(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'SEND MESSAGE';
+  }
 });
