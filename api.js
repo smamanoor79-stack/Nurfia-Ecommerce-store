@@ -1,6 +1,6 @@
 const isProd = window.location.hostname !== 'localhost';
 export const BASE_URL = isProd
-  ? 'https://YOUR-RENDER-URL.onrender.com'  // Render deploy hone ke baad yahan actual URL dalna
+  ? 'https://nurfia-backend.bonto.run'  // Render deploy hone ke baad yahan actual URL dalna
   : 'http://localhost:5000';
 
 export function getImageUrl(imagePath) {
