@@ -275,6 +275,13 @@ document.getElementById('registerBtn')?.addEventListener('click', async () => {
     setTimeout(async () => {
       clearAuthMessages('registerPanel');
       updateUserIcon();
+
+      // ✅ Checkout page par ho to reload karo taake init() fresh chale
+      if (window.location.pathname.includes('checkout.html')) {
+        window.location.reload();
+        return;
+      }
+
       switchTab('profile');
       // ✅ Register ke baad bhi sync karo
       await syncCartToBackend();
@@ -302,7 +309,14 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
       clearAuthMessages('loginPanel');
       updateUserIcon();
       closeAuthModal();
-      // ✅ Login ke baad localStorage → backend sync
+
+      //  Checkout page par ho to reload karo taake init() fresh chale
+      if (window.location.pathname.includes('checkout.html')) {
+        window.location.reload();
+        return;
+      }
+
+      //  Login ke baad localStorage → backend sync
       await syncCartToBackend();
       await syncWishlistToBackend();
       fetchAndUpdateWishlistBadge();
