@@ -64,6 +64,8 @@ function initSlider(section, productsGrid, sliderDots, filterBtns, products) {
 async function initHomePage() {
   try {
     const products = await getAllProducts();
+    products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     const allSections = document.querySelectorAll(".featured-section");
     allSections.forEach((section) => {
       const productsGrid = section.querySelector(".products-grid");
