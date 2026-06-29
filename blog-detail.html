@@ -7,7 +7,7 @@
   <title>Blog – Nurfia</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="blog.css" />
-  <link rel="stylesheet" href="cart.css"/>
+  <link rel="stylesheet" href="cart.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link
     href="https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
@@ -43,7 +43,6 @@
       <nav class="header-nav">
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
-        <a href="#">Categories</a>
         <a href="women.html">Women</a>
         <a href="men.html">Men</a>
         <a href="blog.html" class="active">Blog</a>
@@ -73,7 +72,6 @@
         </a>
 
         <i class="fa-regular fa-user"></i>
-        <i class="fa-solid fa-arrow-right-arrow-left"></i>
 
         <span class="cart-icon" id="cartIconBtn">
           <i class="fa-solid fa-bag-shopping"></i>
@@ -83,7 +81,7 @@
     </div>
   </header>
 
-  
+
 
   <!-- Main Wrapper -->
   <div class="detail-page-wrapper">
@@ -242,36 +240,37 @@
   </footer>
 
   <!-- Cart Drawer -->
-<div class="cart-drawer-overlay" id="cartOverlay"></div>
-<div class="cart-drawer" id="cartDrawer">
-  <div class="drawer-header">
-    <h3>Your Cart</h3>
-    <button class="drawer-close" id="drawerClose"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <div class="drawer-shipping-msg" id="drawerShippingMsg"></div>
-  <div class="drawer-items" id="drawerItems"></div>
-  <div class="drawer-footer" id="drawerFooter">
-    <div class="drawer-subtotal">
-      <span>Subtotal:</span>
-      <span id="drawerSubtotal">$0.00</span>
+  <div class="cart-drawer-overlay" id="cartOverlay"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <h3>Your Cart</h3>
+      <button class="drawer-close" id="drawerClose"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <a href="cart.html" class="drawer-view-cart">VIEW CART</a>
-    <a href="checkout.html" class="drawer-checkout">CHECKOUT</a>
-  </div>
-</div>
-
-<!-- Wishlist Modal -->
-<div id="wishlistModal" class="wishlist-popup-modal">
-  <div class="wishlist-popup-content">
-    <p id="wishlistModalMessage"><strong id="modalProductName">Product</strong> has been added to Wishlist.</p>
-    <div class="wishlist-popup-actions">
-      <a href="wishlist.html" class="popup-btn view-wishlist-btn"><i class="fa-regular fa-heart"></i> VIEW WISHLIST</a>
-      <button id="closeWishlistModal" class="popup-btn close-modal-btn">&times; CLOSE</button>
+    <div class="drawer-shipping-msg" id="drawerShippingMsg"></div>
+    <div class="drawer-items" id="drawerItems"></div>
+    <div class="drawer-footer" id="drawerFooter">
+      <div class="drawer-subtotal">
+        <span>Subtotal:</span>
+        <span id="drawerSubtotal">$0.00</span>
+      </div>
+      <a href="cart.html" class="drawer-view-cart">VIEW CART</a>
+      <a href="checkout.html" class="drawer-checkout">CHECKOUT</a>
     </div>
   </div>
-</div>
 
-<div id="modalOverlay" class="modal-blur-overlay"></div>
+  <!-- Wishlist Modal -->
+  <div id="wishlistModal" class="wishlist-popup-modal">
+    <div class="wishlist-popup-content">
+      <p id="wishlistModalMessage"><strong id="modalProductName">Product</strong> has been added to Wishlist.</p>
+      <div class="wishlist-popup-actions">
+        <a href="wishlist.html" class="popup-btn view-wishlist-btn"><i class="fa-regular fa-heart"></i> VIEW
+          WISHLIST</a>
+        <button id="closeWishlistModal" class="popup-btn close-modal-btn">&times; CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-blur-overlay"></div>
 
   <!-- Auth Modal -->
 
@@ -349,7 +348,8 @@
             <p class="auth-profile-name" id="profileName">Name</p>
             <p class="auth-profile-email" id="profileEmail">email@example.com</p>
           </div>
-          <a href="orders.html" class="auth-submit-btn" style="display:block; text-align:center; text-decoration:none; margin-bottom:10px;">MY ORDERS</a>
+          <a href="orders.html" class="auth-submit-btn"
+            style="display:block; text-align:center; text-decoration:none; margin-bottom:10px;">MY ORDERS</a>
           <button class="auth-submit-btn" id="logoutBtn">LOG OUT</button>
         </div>
 
